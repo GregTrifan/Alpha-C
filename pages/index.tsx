@@ -1,12 +1,7 @@
 import type { NextPage } from "next";
-import { useEffect, useState } from "react";
 import Head from "next/head";
 import { Typography } from "@mui/material";
 import { css } from "@emotion/react";
-import { useSigner } from "wagmi";
-import Networks from "../components/Networks";
-import { useNetworkStore } from "../store";
-import { ethers } from "ethers";
 const Home: NextPage = () => {
   return (
     <div>
@@ -24,7 +19,6 @@ const Home: NextPage = () => {
       >
         🚧🚧 WIP 🚧🚧
       </Typography>
-      <Networks />
     </div>
   );
 };
