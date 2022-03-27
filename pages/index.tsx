@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { Typography } from "@mui/material";
+import NonFungibleAssets from "../components/NonFungibleAssets";
 import { css } from "@emotion/react";
 const Home: NextPage = () => {
   return (
@@ -19,6 +20,7 @@ const Home: NextPage = () => {
       >
         🚧🚧 WIP 🚧🚧
       </Typography>
+      <NonFungibleAssets />
     </div>
   );
 };
