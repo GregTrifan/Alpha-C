@@ -3,9 +3,18 @@ import Head from "next/head";
 import { Typography } from "@mui/material";
 import NonFungibleAssets from "../components/NonFungibleAssets";
 import { css } from "@emotion/react";
+import { useAccount } from "wagmi";
 const Home: NextPage = () => {
+  const [{ data: accountData }] = useAccount({
+    fetchEns: true,
+  });
   return (
-    <div>
+    <div
+      css={css`
+        padding-left: 12px;
+        padding-right: 12px;
+      `}
+    >
       <Head>
         <title>Alpha-C</title>
         <meta name="description" content="Project under work" />
@@ -20,7 +29,9 @@ const Home: NextPage = () => {
       >
         🚧🚧 WIP 🚧🚧
       </Typography>
-      <NonFungibleAssets />
+      {accountData?.address && (
+        <NonFungibleAssets address={accountData?.address} />
+      )}
     </div>
   );
 };
