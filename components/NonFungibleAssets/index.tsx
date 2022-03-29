@@ -8,23 +8,36 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from "@mui/material";
+import AssetCard from "../AssetCard";
 import { Masonry } from "@mui/lab";
+import { Asset } from "../../types";
 import { css } from "@emotion/react";
 import { useQuery } from "react-query";
 type PropTypes = {
   address: string | null;
+  chain: {
+    name: string;
+    chainId: number;
+  };
 };
-const NonFungibleAssets = ({ address }: PropTypes) => {
+const NonFungibleAssets = ({ address, chain }: PropTypes) => {
   const { error, data, isLoading } = useQuery(
-    "accountPortfolio",
+    `accountPortfolio-${chain.chainId}`,
     () =>
       fetch(
-        `https://api.covalenthq.com/v1/137/address/${address}/balances_v2/?nft=true&no-nft-fetch=true&key=${process.env.NEXT_PUBLIC_COVALENT_API_KEY}`
+        `https://api.covalenthq.com/v1/${chain.chainId}/address/${address}/balances_v2/?nft=true&no-nft-fetch=true&key=${process.env.NEXT_PUBLIC_COVALENT_API_KEY}`
       ).then(async (res) => {
         const query = await res.json();
-        const assets = query.data.items.filter((x: any) =>
-          x.supports_erc.includes("erc721")
-        );
+        const assets = query.data.items.filter((x: any) => {
+          try {
+            return (
+              x.supports_erc.includes("erc721") ||
+              x.supports_erc.includes("erc1155")
+            );
+          } catch {
+            return false;
+          }
+        });
         return assets;
       }),
     {
@@ -36,10 +49,12 @@ const NonFungibleAssets = ({ address }: PropTypes) => {
       <Accordion
         css={css`
           background-color: #dddddd;
+          margin-top: 4px;
+          margin-bottom: 6px;
         `}
       >
         <AccordionSummary expandIcon={<CaretDown />}>
-          <Typography>Your Assets</Typography>
+          <Typography>{chain.name}</Typography>
         </AccordionSummary>
         <AccordionDetails>
           {!address && (
@@ -49,24 +64,25 @@ const NonFungibleAssets = ({ address }: PropTypes) => {
           )}
           {error && (
             <div>
-              <p>Couldn't load your portfolio</p>
+              <p>No Items avalaible/ Couldn't load your portfolio</p>
             </div>
           )}
           {data && (
             <Box>
               {data && (
                 <Masonry columns={{ xs: 1, sm: 2, md: 4 }}>
-                  {data.map((asset: any, i: number) => (
-                    <Card
-                      css={css`
-                        padding: 4px;
-                        min-height: 200px;
-                      `}
-                      key={i}
-                    >
-                      {asset.contract_name}
-                    </Card>
-                  ))}
+                  {data.map((asset: Asset) => {
+                    return asset.nft_data.map((item, j) => (
+                      <div key={j}>
+                        <AssetCard
+                          contractAddress={asset.contract_address}
+                          contractName={asset.contract_name}
+                          chainId={chain.chainId}
+                          asset={item}
+                        />
+                      </div>
+                    ));
+                  })}
                 </Masonry>
               )}
             </Box>
